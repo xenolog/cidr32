@@ -82,7 +82,7 @@ func (r *IPRange) CutToCidr(cidr *net.IPNet, reserveNetBorders bool) (rv *IPRang
 func (r *IPRange) ExcludeRange(exRange *IPRange) (rv IPRangeList, n int) {
 	if !r.IsIntersect(exRange) {
 		// No intersection
-		rv = IPRangeList{r}
+		rv = IPRangeList{*r}
 		return rv, 0
 	}
 	if exRange.First32() > r.First32() && exRange.Last32() < r.Last32() {
@@ -90,18 +90,18 @@ func (r *IPRange) ExcludeRange(exRange *IPRange) (rv IPRangeList, n int) {
 		r1, _ := New32Range(r.First32(), exRange.First32()-1)
 		r2, _ := New32Range(exRange.Last32()+1, r.Last32())
 
-		rv = IPRangeList{r1, r2}
+		rv = IPRangeList{*r1, *r2}
 	} else if exRange.First32() <= r.First32() && exRange.Last32() >= r.Last32() {
 		// absorbing
 		return IPRangeList{}, -1
 	} else if exRange.First32() <= r.First32() && exRange.Last32() >= r.First32() {
 		// Left
 		tmp, _ := New32Range(exRange.Last32()+1, r.Last32())
-		rv = IPRangeList{tmp}
+		rv = IPRangeList{*tmp}
 	} else if exRange.First32() <= r.Last32() && exRange.Last32() >= r.Last32() {
 		// Right
 		tmp, _ := New32Range(r.First32(), exRange.First32()-1)
-		rv = IPRangeList{tmp}
+		rv = IPRangeList{*tmp}
 	}
 	return rv, len(rv)
 }

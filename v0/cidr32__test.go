@@ -332,13 +332,13 @@ func TestExcludeRange(t *testing.T) {
 	// Negative
 	exRng, _ := NewRange("172.22.132.10-172.22.132.20")
 	actualRngs, n := rng.ExcludeRange(exRng)
-	expectedRngs := IPRangeList{rng}
+	expectedRngs := IPRangeList{*rng}
 	assert.Equal(t, 0, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	//
 	exRng, _ = NewRange("172.22.132.110-172.22.132.120")
 	actualRngs, n = rng.ExcludeRange(exRng)
-	expectedRngs = IPRangeList{rng}
+	expectedRngs = IPRangeList{*rng}
 	assert.Equal(t, 0, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// Divide to 2
@@ -346,7 +346,7 @@ func TestExcludeRange(t *testing.T) {
 	actualRngs, n = rng.ExcludeRange(exRng)
 	r1, _ := NewRange("172.22.132.50-172.22.132.59")
 	r2, _ := NewRange("172.22.132.81-172.22.132.100")
-	expectedRngs = IPRangeList{r1, r2}
+	expectedRngs = IPRangeList{*r1, *r2}
 	assert.Equal(t, 2, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// Divide to 2 by one IP
@@ -354,42 +354,42 @@ func TestExcludeRange(t *testing.T) {
 	actualRngs, n = rng.ExcludeRange(exRng)
 	r1, _ = NewRange("172.22.132.50-172.22.132.59")
 	r2, _ = NewRange("172.22.132.61-172.22.132.100")
-	expectedRngs = IPRangeList{r1, r2}
+	expectedRngs = IPRangeList{*r1, *r2}
 	assert.Equal(t, 2, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// Left
 	exRng, _ = NewRange("172.22.132.40-172.22.132.60")
 	actualRngs, n = rng.ExcludeRange(exRng)
 	r1, _ = NewRange("172.22.132.61-172.22.132.100")
-	expectedRngs = IPRangeList{r1}
+	expectedRngs = IPRangeList{*r1}
 	assert.Equal(t, 1, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// Left, same left edge
 	exRng, _ = NewRange("172.22.132.50-172.22.132.60")
 	actualRngs, n = rng.ExcludeRange(exRng)
 	r1, _ = NewRange("172.22.132.61-172.22.132.100")
-	expectedRngs = IPRangeList{r1}
+	expectedRngs = IPRangeList{*r1}
 	assert.Equal(t, 1, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// Left, just touch
 	exRng, _ = NewRange("172.22.132.40-172.22.132.50")
 	actualRngs, n = rng.ExcludeRange(exRng)
 	r1, _ = NewRange("172.22.132.51-172.22.132.100")
-	expectedRngs = IPRangeList{r1}
+	expectedRngs = IPRangeList{*r1}
 	assert.Equal(t, 1, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// Right, same right edge
 	exRng, _ = NewRange("172.22.132.90-172.22.132.100")
 	actualRngs, n = rng.ExcludeRange(exRng)
 	r1, _ = NewRange("172.22.132.50-172.22.132.89")
-	expectedRngs = IPRangeList{r1}
+	expectedRngs = IPRangeList{*r1}
 	assert.Equal(t, 1, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// Right, just touch
 	exRng, _ = NewRange("172.22.132.100-172.22.132.110")
 	actualRngs, n = rng.ExcludeRange(exRng)
 	r1, _ = NewRange("172.22.132.50-172.22.132.99")
-	expectedRngs = IPRangeList{r1}
+	expectedRngs = IPRangeList{*r1}
 	assert.Equal(t, 1, n)
 	assert.Equal(t, expectedRngs, actualRngs)
 	// absorbing
@@ -404,7 +404,7 @@ func TestIPRangeList(t *testing.T) {
 	ipRanges := IPRangeList{}
 	for i := 0; i <= 4; i = i + 2 {
 		r, _ := NewRange(fmt.Sprintf("192.169.%d.0-192.169.%d.255", i, i))
-		ipRanges = append(ipRanges, r)
+		ipRanges = append(ipRanges, *r)
 	}
 	assert.Equal(t,
 		"192.169.0.0-192.169.0.255\n192.169.2.0-192.169.2.255\n192.169.4.0-192.169.4.255",
@@ -420,74 +420,74 @@ func TestExcludeRangeFromRangeList(t *testing.T) {
 	r1, _ := NewRange("172.22.132.10-172.22.132.20")
 	r2, _ := NewRange("172.22.132.30-172.22.132.50")
 	r3, _ := NewRange("172.22.132.80-172.22.132.90")
-	baseRangeList := IPRangeList{r1, r2, r3}
+	baseRangeList := IPRangeList{*r1, *r2, *r3}
 
 	// outside existing ranges
 	exRng, _ := NewRange("172.22.132.3-172.22.132.5")
 	actualRangeList, n := baseRangeList.ExcludeRange(exRng)
 	assert.Equal(t, 0, n)
-	assert.Equal(t, baseRangeList, *actualRangeList)
+	assert.Equal(t, baseRangeList, actualRangeList)
 
 	// split first of existing ranges
 	exRng, _ = NewRange("172.22.132.13-172.22.132.16")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
 	d1, _ := NewRange("172.22.132.10-172.22.132.12")
 	d2, _ := NewRange("172.22.132.17-172.22.132.20")
-	expectedRangeList := IPRangeList{d1, d2, r2, r3}
+	expectedRangeList := IPRangeList{*d1, *d2, *r2, *r3}
 	assert.Equal(t, 2, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 	// split one of midle in existing ranges
 	exRng, _ = NewRange("172.22.132.35-172.22.132.40")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
 	d1, _ = NewRange("172.22.132.30-172.22.132.34")
 	d2, _ = NewRange("172.22.132.41-172.22.132.50")
-	expectedRangeList = IPRangeList{r1, d1, d2, r3}
+	expectedRangeList = IPRangeList{*r1, *d1, *d2, *r3}
 	assert.Equal(t, 2, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 	// split last of existing ranges
 	exRng, _ = NewRange("172.22.132.83-172.22.132.85")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
 	d1, _ = NewRange("172.22.132.80-172.22.132.82")
 	d2, _ = NewRange("172.22.132.86-172.22.132.90")
-	expectedRangeList = IPRangeList{r1, r2, d1, d2}
+	expectedRangeList = IPRangeList{*r1, *r2, *d1, *d2}
 	assert.Equal(t, 2, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 
 	// cut one of existing ranges
 	exRng, _ = NewRange("172.22.132.25-172.22.132.40")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
 	d1, _ = NewRange("172.22.132.41-172.22.132.50")
-	expectedRangeList = IPRangeList{r1, d1, r3}
+	expectedRangeList = IPRangeList{*r1, *d1, *r3}
 	assert.Equal(t, 1, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 
 	// cut two of existing ranges by one range
 	exRng, _ = NewRange("172.22.132.45-172.22.132.85")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
 	d1, _ = NewRange("172.22.132.30-172.22.132.44")
 	d2, _ = NewRange("172.22.132.86-172.22.132.90")
-	expectedRangeList = IPRangeList{r1, d1, d2}
+	expectedRangeList = IPRangeList{*r1, *d1, *d2}
 	assert.Equal(t, 1, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 
 	// absorbing a first of existing ranges by larger range
 	exRng, _ = NewRange("172.22.132.5-172.22.132.25")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
-	expectedRangeList = IPRangeList{r2, r3}
+	expectedRangeList = IPRangeList{*r2, *r3}
 	assert.Equal(t, 2, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 	// absorbing a middle of existing ranges by larger range
 	exRng, _ = NewRange("172.22.132.25-172.22.132.55")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
-	expectedRangeList = IPRangeList{r1, r3}
+	expectedRangeList = IPRangeList{*r1, *r3}
 	assert.Equal(t, 2, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 	// absorbing a last of existing ranges by larger range
 	exRng, _ = NewRange("172.22.132.75-172.22.132.95")
 	actualRangeList, n = baseRangeList.ExcludeRange(exRng)
-	expectedRangeList = IPRangeList{r1, r2}
+	expectedRangeList = IPRangeList{*r1, *r2}
 	assert.Equal(t, 2, n)
-	assert.Equal(t, expectedRangeList, *actualRangeList)
+	assert.Equal(t, expectedRangeList, actualRangeList)
 }
 
 func TestIPSearchIndex(t *testing.T) {

@@ -5,18 +5,18 @@ import (
 )
 
 // IPRangeList -- list of IPRanges
-type IPRangeList []*IPRange
+type IPRangeList []IPRange
 
 // Strings -- returns a list of string representation ranges
-func (r *IPRangeList) Strings() []string {
+func (r IPRangeList) Strings() []string {
 	var rv []string
-	for _, r := range *r {
+	for _, r := range r {
 		rv = append(rv, r.String())
 	}
 	return rv
 }
 
-func (r *IPRangeList) String() string {
+func (r IPRangeList) String() string {
 	return strings.Join(r.Strings(), "\n")
 }
 
@@ -25,10 +25,10 @@ func (r *IPRangeList) String() string {
 //   0 if no actions was
 //   1 if amount of ranges unchanged
 //   2 if amount of ranges was changed
-func (r *IPRangeList) ExcludeRange(exRange *IPRange) (*IPRangeList, int) {
+func (r IPRangeList) ExcludeRange(exRange *IPRange) (IPRangeList, int) {
 	var tmp IPRangeList
 	n := 0
-	rv := append(IPRangeList{}, *r...) // initialize & copy
+	rv := append(IPRangeList{}, r...) // initialize & copy
 	e := len(rv)
 	for i, shift := 0, 0; i < e; i++ {
 		ner, nn := rv[i+shift].ExcludeRange(exRange)
@@ -65,31 +65,31 @@ func (r *IPRangeList) ExcludeRange(exRange *IPRange) (*IPRangeList, int) {
 			}
 		}
 	}
-	return &rv, n
+	return rv, n
 }
 
 // Capacity --
-func (r *IPRangeList) Capacity() (rv int) {
-	for _, r := range *r {
+func (r IPRangeList) Capacity() (rv int) {
+	for _, r := range r {
 		rv = rv + r.Len()
 	}
 	return rv
 }
 
 // Sorted --
-func (r *IPRangeList) Sorted() *IPRangeList {
+func (r IPRangeList) Sorted() IPRangeList {
 	// todo(sv): IMPLEMENT!!!
 	return r
 }
 
 // Glued --
-func (r *IPRangeList) Glued() *IPRangeList {
+func (r IPRangeList) Glued() IPRangeList {
 	// todo(sv): IMPLEMENT!!!
 	return r
 }
 
 // Arranged -- sorted and Glued
-func (r *IPRangeList) Arranged() *IPRangeList {
+func (r IPRangeList) Arranged() IPRangeList {
 	// todo(sv): IMPLEMENT!!!
 	tmp := r.Sorted()
 	return tmp.Glued()
